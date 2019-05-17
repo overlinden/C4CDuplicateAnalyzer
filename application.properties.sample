@@ -1,0 +1,19 @@
+logging.level = INFO
+logging.file = application.log
+logging.level.de.wpsverlinden.c4caccountduplicate=INFO
+
+c4cduplicateanalyzer.endpoint = https://myXXXXXX.crm.ondemand.com/sap/c4c/odata/v1/c4codataapi
+c4cduplicateanalyzer.user = YOUR_USERNAME
+c4cduplicateanalyzer.password = YOUR_PASSWORD
+
+c4cduplicateanalyzer.chunksize = 10000
+
+c4cduplicateanalyzer.jobs[0].countrycode = AT
+c4cduplicateanalyzer.jobs[0].roles = Z01
+c4cduplicateanalyzer.jobs[0].threshold = 0.75
+c4cduplicateanalyzer.jobs[0].outputfilename = AT_075_Z01_Duplicates.txt
+
+c4cduplicateanalyzer.jobs[1].countrycode = DE
+c4cduplicateanalyzer.jobs[1].roles = Z02
+c4cduplicateanalyzer.jobs[1].threshold = 0.85
+c4cduplicateanalyzer.jobs[1].outputfilename = DE_085_Z02_Duplicates.txt
