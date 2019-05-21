@@ -55,7 +55,11 @@ public class AccountListReader implements ItemStreamReader<List<Account>> {
     public void open(ExecutionContext ec) throws ItemStreamException {
         accounts = new ArrayList<>();
 
-        Arrays.stream(roles.split(",")).forEach(this::getAccounts);
+        if (roles != null) {
+            Arrays.stream(roles.split(",")).forEach(this::getAccounts);
+        } else {
+            getAccounts(null);
+        }
 
         if (ec.containsKey("StartIndex")) {
             startIndex = ec.getInt("StartIndex");
@@ -85,7 +89,14 @@ public class AccountListReader implements ItemStreamReader<List<Account>> {
 
     private void getAccounts(int skip, String roleCode) {
         try {
-            final String encodedFilter = URLEncoder.encode("CountryCode eq '" + countryCode + "' and RoleCode eq '" + roleCode + "' and LifeCycleStatusCode eq '2'", "UTF8");
+            String filter = "LifeCycleStatusCode eq '2'";
+            if (countryCode != null) {
+                filter = filter + " and CountryCode eq '" + countryCode + "'";
+            }
+            if (roleCode != null) {
+                filter = filter + "' and RoleCode eq '" + roleCode + "'";
+            }
+            final String encodedFilter = URLEncoder.encode(filter, "UTF8");
             final String urlParameter = "/?$filter=" + encodedFilter + "&$orderby=AccountID&$select=" + SELECT_FIELDS + "&$skip=" + skip + "&$top=" + config.getChunkSize() + "&$inlinecount=allpages";
             ODataFeed eventFeed = oDataFeedReceiver.readFeed(COLLECTION_NAME, Optional.of(urlParameter));
             int totalRecords = eventFeed.getFeedMetadata().getInlineCount();
@@ -93,7 +104,7 @@ public class AccountListReader implements ItemStreamReader<List<Account>> {
                     .map(entry -> buildAccount(entry.getProperties()))
                     .collect(Collectors.toList());
             skip += collect.size();
-            LOG.info("Received {} of {} {}-accounts from odata feed", skip, totalRecords, roleCode);
+            LOG.info("Received {} of {} {}accounts from odata feed", skip, totalRecords, roleCode != null ? roleCode + " " : "");
             accounts.addAll(collect);
             if (skip < totalRecords) {
                 getAccounts(skip, roleCode);
