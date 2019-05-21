@@ -4,7 +4,7 @@ import de.wpsverlinden.c4cduplicateanalyzer.ApplicationConfiguration;
 import de.wpsverlinden.c4cduplicateanalyzer.model.Account;
 import de.wpsverlinden.c4cduplicateanalyzer.model.Duplicate;
 import de.wpsverlinden.c4cduplicateanalyzer.persistence.DuplicateRepository;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -100,10 +100,14 @@ public class BatchConfiguration {
 
     @Bean
     public RepositoryItemReader<Duplicate> duplicateDatabaseReader() {
+        LinkedHashMap<String, Direction> sorts = new LinkedHashMap<>();
+        sorts.put("similarity", Direction.DESC);
+        sorts.put("a", Direction.ASC);
+        sorts.put("b", Direction.ASC);
         return new RepositoryItemReaderBuilder<Duplicate>()
                 .repository(repo)
                 .methodName("findAll")
-                .sorts(Collections.singletonMap("similarity", Direction.DESC))
+                .sorts(sorts)
                 .name("duplicateDatabaseReader")
                 .build();
     }
