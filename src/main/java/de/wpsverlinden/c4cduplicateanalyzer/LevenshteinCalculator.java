@@ -6,9 +6,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class LevenshteinCalculator {
 
-    public float getSimilarity(Account a, Account b) {
+    public float getSimilarity(Account a, Account b, float threshold) {
+        int length_difference = Math.abs(a.getSerialData().length() - b.getSerialData().length());
+        int max_length = (Math.max(a.getSerialData().length(), b.getSerialData().length()));
+        // DROP IF: distance > -threshold*max_length + max_length
+        // AND distance > length_difference
+        // SO --> DROP IF: length_difference > -threshold*max_length + max_length
+        if (length_difference > -threshold * max_length + max_length) {
+            return Float.MIN_VALUE;
+        }
+
         int distance = getLevenshteinDistance(a.getSerialData(), b.getSerialData());
-        float ratio = ((float) distance) / (Math.max(a.getSerialData().length(), b.getSerialData().length()));
+        float ratio = ((float) distance) / max_length;
         return 1 - ratio;
     }
 

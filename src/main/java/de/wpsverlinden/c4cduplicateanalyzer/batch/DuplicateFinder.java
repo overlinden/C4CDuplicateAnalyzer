@@ -38,7 +38,7 @@ public class DuplicateFinder implements ItemProcessor<List<Account>, List<Duplic
                     return Duplicate.builder()
                             .a(a.toString())
                             .b(b.toString())
-                            .similarity(calculator.getSimilarity(a, b))
+                            .similarity(calculator.getSimilarity(a, b, threshold))
                             .build();
                 })
                 .peek(r -> LOG.debug(r.toString()))
