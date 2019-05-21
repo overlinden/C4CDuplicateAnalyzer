@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.com/overlinden/C4CDuplicateAnalyzer.svg?branch=master)](https://travis-ci.com/overlinden/C4CDuplicateAnalyzer)
+[![Build Status](https://travis-ci.com/overlinden/C4CDuplicateAnalyzer.svg?branch=master)](https://travis-ci.com/overlinden/C4CDuplicateAnalyzer) 
+[![codecov](https://codecov.io/gh/overlinden/C4CDuplicateAnalyzer/branch/master/graph/badge.svg)](https://codecov.io/gh/overlinden/C4CDuplicateAnalyzer)
+
 # C4CDuplicateAnalyzer
 
 C4CDuplicateAnalyzer is a mass duplicate finder for SAP Cloud for Customer based on Spring Batch. It is highly configurable and uses multithreading for a great performance.
