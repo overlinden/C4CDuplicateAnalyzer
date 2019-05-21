@@ -94,7 +94,7 @@ public class AccountListReader implements ItemStreamReader<List<Account>> {
                 filter = filter + " and CountryCode eq '" + countryCode + "'";
             }
             if (roleCode != null) {
-                filter = filter + "' and RoleCode eq '" + roleCode + "'";
+                filter = filter + " and RoleCode eq '" + roleCode + "'";
             }
             final String encodedFilter = URLEncoder.encode(filter, "UTF8");
             final String urlParameter = "/?$filter=" + encodedFilter + "&$orderby=AccountID&$select=" + SELECT_FIELDS + "&$skip=" + skip + "&$top=" + config.getChunkSize() + "&$inlinecount=allpages";
