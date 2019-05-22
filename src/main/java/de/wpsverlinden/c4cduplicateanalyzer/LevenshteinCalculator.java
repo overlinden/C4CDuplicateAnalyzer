@@ -22,7 +22,7 @@ public class LevenshteinCalculator {
     }
 
     // Implementation from https://web.archive.org/web/20120526085419/http://www.merriampark.com/ldjava.htm
-    public int getLevenshteinDistance(String s, String t) {
+    private int getLevenshteinDistance(String s, String t) {
 
         int n = s.length(); // length of s
         int m = t.length(); // length of t
