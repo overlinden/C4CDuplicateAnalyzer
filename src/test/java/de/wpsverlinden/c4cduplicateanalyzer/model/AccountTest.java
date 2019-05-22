@@ -1,11 +1,10 @@
 
 package de.wpsverlinden.c4cduplicateanalyzer.model;
 
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
+import static org.assertj.core.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 public class AccountTest {
@@ -31,7 +30,7 @@ public class AccountTest {
                 .StreetPostalCode("pc")
                 .WebSite("http://example.com")
                 .build();
-        Assert.assertThat(a.getSerialData(), Matchers.equalTo("nanan2an3201m@example.comhttp://example.comciccscds100pc"));
+        assertThat(a.getSerialData()).isEqualTo("nanan2an3201m@example.comhttp://example.comciccscds100pc");
     }
     
     @Test
@@ -39,7 +38,7 @@ public class AccountTest {
         Account a = Account.builder()
                 .Name("Name")
                 .build();
-        Assert.assertThat(a.getSerialData(), Matchers.equalTo("name"));
+        assertThat(a.getSerialData()).isEqualTo("name");
     }
     
     @Test
@@ -47,6 +46,6 @@ public class AccountTest {
         Account a = Account.builder()
                 .Name("name value")
                 .build();
-        Assert.assertThat(a.getSerialData(), Matchers.equalTo("namevalue"));
+        assertThat(a.getSerialData()).isEqualTo("namevalue");
     }
 }
