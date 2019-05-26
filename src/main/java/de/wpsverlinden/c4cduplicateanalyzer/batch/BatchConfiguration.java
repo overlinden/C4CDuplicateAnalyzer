@@ -1,6 +1,7 @@
 package de.wpsverlinden.c4cduplicateanalyzer.batch;
 
 import de.wpsverlinden.c4cduplicateanalyzer.ApplicationConfiguration;
+import de.wpsverlinden.c4cduplicateanalyzer.feed.ODataFeedReceiver;
 import de.wpsverlinden.c4cduplicateanalyzer.model.Account;
 import de.wpsverlinden.c4cduplicateanalyzer.model.Duplicate;
 import de.wpsverlinden.c4cduplicateanalyzer.persistence.DuplicateRepository;
@@ -59,11 +60,15 @@ public class BatchConfiguration {
     @Autowired
     private ApplicationConfiguration config;
 
+    @Autowired
+    private ODataFeedReceiver oDataFeedReceiver;
+
     @Bean
     public Job duplicateJob() {
         return jobBuilderFactory.get("DuplicateJob")
                 .incrementer(new RunIdIncrementer())
                 .start(cleanupStep())
+                .next(edmInitStep())
                 .next(accountDuplicateStep())
                 .next(databaseToFileStep())
                 .preventRestart()
@@ -74,6 +79,13 @@ public class BatchConfiguration {
     public Step cleanupStep() {
         return stepBuilderFactory.get("cleanupStep")
                 .tasklet(clearRepo)
+                .build();
+    }
+
+    @Bean
+    public Step edmInitStep() {
+        return stepBuilderFactory.get("EdmInitStep")
+                .tasklet(oDataFeedReceiver)
                 .build();
     }
 
