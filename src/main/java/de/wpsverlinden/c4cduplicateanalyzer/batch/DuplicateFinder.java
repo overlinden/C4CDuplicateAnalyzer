@@ -22,9 +22,6 @@ public class DuplicateFinder implements ItemProcessor<List<Account>, List<Duplic
 
     @Autowired
     private LevenshteinCalculator calculator;
-
-    @Autowired
-    private ApplicationConfiguration config;
     
     @Value("#{jobParameters[Threshold]}")
     private float threshold;
