@@ -1,6 +1,5 @@
 package de.wpsverlinden.c4cduplicateanalyzer.batch;
 
-import de.wpsverlinden.c4cduplicateanalyzer.ApplicationConfiguration;
 import de.wpsverlinden.c4cduplicateanalyzer.LevenshteinCalculator;
 import de.wpsverlinden.c4cduplicateanalyzer.model.Account;
 import de.wpsverlinden.c4cduplicateanalyzer.model.Duplicate;
@@ -22,9 +21,6 @@ public class DuplicateFinder implements ItemProcessor<List<Account>, List<Duplic
 
     @Autowired
     private LevenshteinCalculator calculator;
-
-    @Autowired
-    private ApplicationConfiguration config;
     
     @Value("#{jobParameters[Threshold]}")
     private float threshold;
