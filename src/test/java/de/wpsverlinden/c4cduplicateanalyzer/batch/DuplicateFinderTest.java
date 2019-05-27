@@ -5,7 +5,6 @@ import de.wpsverlinden.c4cduplicateanalyzer.model.Account;
 import de.wpsverlinden.c4cduplicateanalyzer.model.Duplicate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
