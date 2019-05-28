@@ -15,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.never;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DuplicateFinderTest {
@@ -62,8 +63,9 @@ public class DuplicateFinderTest {
 
         duplicateFinder.process(Arrays.asList(a, b, c));
 
-        Mockito.verify(calculator).getSimilarity(Mockito.eq(a), Mockito.eq(b), Mockito.eq(0.5f));
-        Mockito.verify(calculator).getSimilarity(Mockito.eq(a), Mockito.eq(c), Mockito.eq(0.5f));
+        Mockito.verify(calculator, times(1)).getSimilarity(Mockito.eq(a), Mockito.eq(b), Mockito.anyFloat());
+        Mockito.verify(calculator, times(1)).getSimilarity(Mockito.eq(a), Mockito.eq(c), Mockito.anyFloat());
+        Mockito.verify(calculator, never()).getSimilarity(Mockito.eq(b), Mockito.eq(c), Mockito.anyFloat());
     }
 
     @Test
