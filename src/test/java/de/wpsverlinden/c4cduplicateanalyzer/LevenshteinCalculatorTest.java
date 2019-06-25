@@ -5,14 +5,18 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 @RunWith(SpringRunner.class)
+@SpringBootTest(classes = {LevenshteinCalculator.class})
 public class LevenshteinCalculatorTest {
+
+    @Autowired
+    private LevenshteinCalculator calculator;
 
     @Test
     public void twoIdenticalAccountsHaveDistanceZero() {
-        LevenshteinCalculator calculator = new LevenshteinCalculator();
-
         Account a = Account.builder()
                 .Name("Test")
                 .build();
@@ -21,8 +25,6 @@ public class LevenshteinCalculatorTest {
 
     @Test
     public void oneAdditionalCharacterHaveDistanceOne() {
-        LevenshteinCalculator calculator = new LevenshteinCalculator();
-
         Account a = Account.builder()
                 .Name("Test")
                 .build();
@@ -35,8 +37,6 @@ public class LevenshteinCalculatorTest {
 
     @Test
     public void oneMissingCharacterHaveDistanceOne() {
-        LevenshteinCalculator calculator = new LevenshteinCalculator();
-
         Account a = Account.builder()
                 .Name("Test")
                 .build();
@@ -49,8 +49,6 @@ public class LevenshteinCalculatorTest {
     
     @Test
     public void oneReplacedCharacterHaveDistanceOne() {
-        LevenshteinCalculator calculator = new LevenshteinCalculator();
-
         Account a = Account.builder()
                 .Name("Test")
                 .build();
@@ -77,8 +75,6 @@ public class LevenshteinCalculatorTest {
 
     @Test
     public void whenFirstAccountIsEmptyDistanceIsLengthOfSecondAccountAndNoDistanceIsCalculated() {
-        LevenshteinCalculator calculator = new LevenshteinCalculator();
-
         Account a = Account.builder()
                 .build();
         final String name = "Text very long name";
@@ -91,8 +87,6 @@ public class LevenshteinCalculatorTest {
 
     @Test
     public void whenSecondAccountIsEmptyDistanceIsLengthOfSecondAccountAndNoDistanceIsCalculated() {
-        LevenshteinCalculator calculator = new LevenshteinCalculator();
-
         final String name = "Text very long name";
         Account a = Account.builder()
                 .Name(name)
