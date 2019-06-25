@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.Times;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.batch.repeat.RepeatStatus;
+import static org.assertj.core.api.Assertions.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClearRepoTest {
@@ -20,7 +22,8 @@ public class ClearRepoTest {
 
     @Test
     public void testRepoIsCleared() throws Exception {
-        clearRepo.execute(null, null);
+        RepeatStatus status = clearRepo.execute(null, null);
         Mockito.verify(repo, new Times(1)).deleteAllInBatch();
+        assertThat(status).isEqualTo(RepeatStatus.FINISHED);
     }
 }
