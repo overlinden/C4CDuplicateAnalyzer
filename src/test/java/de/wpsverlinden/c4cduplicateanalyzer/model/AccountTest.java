@@ -3,10 +3,10 @@ package de.wpsverlinden.c4cduplicateanalyzer.model;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
 import static org.assertj.core.api.Assertions.*;
+import org.junit.runners.BlockJUnit4ClassRunner;
 
-@RunWith(SpringRunner.class)
+@RunWith(BlockJUnit4ClassRunner.class)
 public class AccountTest {
     
     @Test
