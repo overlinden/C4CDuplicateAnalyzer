@@ -1,5 +1,8 @@
 package de.wpsverlinden.c4cduplicateanalyzer.model;
 
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,24 +22,12 @@ public class Account {
         if (serialData == null) {
             synchronized(this) {
                 if (serialData == null) {
-                    final String data = (Name != null ? Name : "")
-                            + (AdditionalName != null ? AdditionalName : "")
-                            + (AdditionalName2 != null ? AdditionalName2 : "")
-                            + (AdditionalName3 != null ? AdditionalName3 : "")
-                            + (Mobile != null ? Mobile : "")
-                            + (Phone != null ? Phone : "")
-                            + (Fax != null ? Fax : "")
-                            + (Email != null ? Email : "")
-                            + (WebSite != null ? WebSite : "")
-                            + (City != null ? City : "")
-                            + (CountryCode != null ? CountryCode : "")
-                            + (StateCode != null ? StateCode : "")
-                            + (District != null ? District : "")
-                            + (Street != null ? Street : "")
-                            + (HouseNumber != null ? HouseNumber : "")
-                            + (StreetPostalCode != null ? StreetPostalCode : "");
-                    serialData = data.replaceAll(" ", "").toLowerCase();
-                }
+                    serialData = Stream.of(Name, AdditionalName, AdditionalName2, AdditionalName3, Mobile, Phone, Fax, Email, WebSite, City, CountryCode, StateCode, District, Street, HouseNumber, StreetPostalCode)
+                            .filter(Objects::nonNull)
+                            .map(s -> s.replaceAll(" ", ""))
+                            .map(String::toLowerCase)
+                            .collect(Collectors.joining());
+                    }
             }
         }
         return serialData;
