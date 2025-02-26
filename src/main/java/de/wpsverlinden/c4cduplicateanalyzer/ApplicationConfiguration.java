@@ -16,7 +16,9 @@ public class ApplicationConfiguration {
     private String endpoint;
     private String user;
     private String password;
-    private int chunkSize;
+    private int downloadChunkSize;
+    private int processorChunkSize;
+    private int exportChunkSize;
     
     @Data
     public static class JobConfig {
