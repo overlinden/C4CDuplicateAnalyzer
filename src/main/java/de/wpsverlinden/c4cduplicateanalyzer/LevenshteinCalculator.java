@@ -1,14 +1,11 @@
 package de.wpsverlinden.c4cduplicateanalyzer;
 
-import de.wpsverlinden.c4cduplicateanalyzer.model.Account;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LevenshteinCalculator {
 
-    public float getSimilarity(Account a, Account b, float threshold) {
-        String aData = a.getSerialData();
-        String bData = b.getSerialData();
+    public float getSimilarity(String aData, String bData, float threshold) {
         int length_difference = Math.abs(aData.length() - bData.length());
         int max_length = (Math.max(aData.length(), bData.length()));
         // DROP IF: distance > -threshold*max_length + max_length

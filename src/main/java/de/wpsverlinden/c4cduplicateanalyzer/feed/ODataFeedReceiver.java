@@ -4,7 +4,6 @@ import de.wpsverlinden.c4cduplicateanalyzer.ApplicationConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-import javax.annotation.PostConstruct;
 import org.apache.olingo.odata2.api.edm.Edm;
 import org.apache.olingo.odata2.api.edm.EdmEntityContainer;
 import org.apache.olingo.odata2.api.ep.EntityProvider;
@@ -20,6 +19,8 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import jakarta.annotation.PostConstruct;
+
 
 @Component
 public class ODataFeedReceiver implements Tasklet {

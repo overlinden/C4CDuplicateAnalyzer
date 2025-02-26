@@ -1,35 +1,38 @@
 package de.wpsverlinden.c4cduplicateanalyzer.model;
 
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.time.LocalDate;
+import java.util.Date;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 
-@EqualsAndHashCode
-@ToString
+@Data
 @Builder
-public class Account {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Account implements Persistable<Integer> {
 
-    @Getter
-    private final String AccountID, Name, AdditionalName, AdditionalName2, AdditionalName3, Phone, Email, Fax, Mobile, WebSite, City, CountryCode, StateCode, District, Street, HouseNumber, StreetPostalCode;
+    @Transient
+    public static Integer INVALID_ACCOUNT_ID = -1;
+    
+    @Id
+    private Integer AccountID;
+    private String Name, AdditionalName, AdditionalName2, AdditionalName3, Phone, Email, Fax, Mobile, WebSite, City, CountryCode, StateCode, District, Street, HouseNumber, StreetPostalCode, ErpID;
+    private Date CreationDate;
+    private String SerialData;
 
-    private volatile String serialData;
-
-    public String getSerialData() {
-        if (serialData == null) {
-            synchronized(this) {
-                if (serialData == null) {
-                    serialData = Stream.of(Name, AdditionalName, AdditionalName2, AdditionalName3, Mobile, Phone, Fax, Email, WebSite, City, CountryCode, StateCode, District, Street, HouseNumber, StreetPostalCode)
-                            .filter(Objects::nonNull)
-                            .map(s -> s.replaceAll(" ", ""))
-                            .map(String::toLowerCase)
-                            .collect(Collectors.joining());
-                    }
-            }
-        }
-        return serialData;
+    @Override
+    public Integer getId() {
+        return AccountID;
     }
+
+    @Override
+    public boolean isNew() {
+        return true;
+    }
+
 }

@@ -1,28 +1,31 @@
 package de.wpsverlinden.c4cduplicateanalyzer.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.domain.Persistable;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Builder()
-public class Duplicate {
+public class Duplicate implements Persistable<Integer> {
     @Id
-    @GeneratedValue
-    private long id;
+    private Integer DuplicateID;
     
-    @Column(length = 1024)
-    private String a;
-    @Column(length = 1024)
-    private String b;
-    private float similarity;
+    private Integer Account1Id;
+    private Integer Account2Id;
+    private float Similarity;
 
+    @Override
+    public Integer getId() {
+        return DuplicateID;
+    }
+
+    @Override
+    public boolean isNew() {
+        return true;
+    }
 }
