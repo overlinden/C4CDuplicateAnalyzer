@@ -19,8 +19,8 @@ public class DatabaseCleanupTasklet implements Tasklet {
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        accountRepo.deleteAll();
         duplicateRepo.deleteAll();
+        accountRepo.deleteAll();
         return RepeatStatus.FINISHED;
     }
     
