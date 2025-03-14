@@ -1,11 +1,12 @@
 package de.wpsverlinden.c4cduplicateanalyzer.batch;
 
 import de.wpsverlinden.c4cduplicateanalyzer.ApplicationConfiguration;
-import de.wpsverlinden.c4cduplicateanalyzer.feed.ODataFeedReceiver;
 import de.wpsverlinden.c4cduplicateanalyzer.model.Account;
+import de.wpsverlinden.c4cduplicateanalyzer.feed.JsonResponseHandler;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -15,8 +16,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.olingo.odata2.api.ep.feed.ODataFeed;
-import org.apache.olingo.odata2.api.exception.ODataException;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemStreamException;
@@ -36,10 +42,13 @@ public class AccountDownloadReader implements ItemStreamReader<Account> {
     private Logger LOG;
 
     @Autowired
-    private ODataFeedReceiver oDataFeedReceiver;
+    private CloseableHttpClient client;
 
     @Autowired
     private ApplicationConfiguration config;
+
+    @Autowired
+    private JsonResponseHandler responseHandler;
 
     @Value("#{jobParameters['CountryCode']}")
     private String countryCode;
@@ -92,55 +101,66 @@ public class AccountDownloadReader implements ItemStreamReader<Account> {
                 filter = filter + " and RoleCode eq '" + roleCode + "'";
             }
             final String encodedFilter = URLEncoder.encode(filter, "UTF8");
-            final String urlParameter = "/?$filter=" + encodedFilter + "&$orderby=AccountID&$select=" + SELECT_FIELDS + "&$skip=" + skip + "&$top=" + config.getDownloadChunkSize() + "&$inlinecount=allpages";
-            ODataFeed eventFeed = oDataFeedReceiver.readFeed(COLLECTION_NAME, Optional.of(urlParameter));
-            int totalRecords = eventFeed.getFeedMetadata().getInlineCount();
-            List<Account> collect = eventFeed.getEntries().stream()
-                    .map(entry -> buildAccount(entry.getProperties()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            skip += collect.size();
+            final String urlParameter = "?$filter=" + encodedFilter + "&$orderby=AccountID&$select=" + SELECT_FIELDS + "&$skip=" + skip + "&$top=" + config.getDownloadChunkSize() + "&$inlinecount=allpages";
+            HttpGet get = new HttpGet(config.getEndpoint() + "/" + COLLECTION_NAME + urlParameter);
+            get.setHeader(HttpHeaders.ACCEPT, "application/json");
+            JSONObject response = client.execute(get, responseHandler);
+            final JSONObject d = response.getJSONObject("d");
+            int totalRecords = d.getInt("__count");
+            JSONArray accountsArray = d.getJSONArray("results");
+            accountsArray.forEach(a -> {
+                Account acc = buildAccount(a);
+                if (acc != null) {
+                    accounts.add(acc);
+                }
+            });
+            skip += accountsArray.length();
             LOG.info("Received {} of {} {}accounts from odata feed", skip, totalRecords, roleCode != null ? roleCode + " " : "");
-            accounts.addAll(collect);
             if (skip < totalRecords) {
                 getAccounts(skip, roleCode);
             }
         } catch (UnsupportedEncodingException ex) {
             LOG.error("Error encoding url parameter: {}", ex.getCause());
-        } catch (IOException | ODataException ex) {
+        } catch (IOException ex) {
             LOG.error("Error receiving accounts: {}", ex.getCause());
         }
     }
 
-    private Account buildAccount(Map<String, Object> propertyMap) {
+    private Account buildAccount(Object o) {
+        if (!(o instanceof JSONObject)) {
+            LOG.error("Invalid object received {}", o.getClass().getName());
+            return null;
+        }
+        JSONObject object = (JSONObject)o;
         int accountId = Account.INVALID_ACCOUNT_ID;
         try {
-            accountId = Integer.parseInt((String) propertyMap.get("AccountID"));
-        } catch (NumberFormatException nfe) {
+            accountId = object.getInt("AccountID");
+        } catch (JSONException ex) {
             //do nothing, filter later
         }
         
-        GregorianCalendar creationOn = (GregorianCalendar)propertyMap.get("CreationOn");
+        final String dateString = object.getString("CreationOn");
+        final Date creationOn = new Date(Long.parseLong(dateString.substring(6, dateString.length()-2)));
 
         return Account.builder()
                 .AccountID(accountId)
-                .Name((String) propertyMap.get("Name"))
-                .AdditionalName((String) propertyMap.get("AdditionalName"))
-                .AdditionalName2((String) propertyMap.get("AdditionalName2"))
-                .AdditionalName3((String) propertyMap.get("AdditionalName3"))
-                .Phone((String) propertyMap.get("Phone"))
-                .Email((String) propertyMap.get("Email"))
-                .Fax((String) propertyMap.get("Fax"))
-                .Mobile((String) propertyMap.get("Mobile"))
-                .WebSite((String) propertyMap.get("WebSite"))
-                .City((String) propertyMap.get("City"))
-                .CountryCode((String) propertyMap.get("CountryCode"))
-                .StateCode((String) propertyMap.get("StateCode"))
-                .District((String) propertyMap.get("District"))
-                .Street((String) propertyMap.get("Street"))
-                .StreetPostalCode((String) propertyMap.get("StreetPostalCode"))
-                .ErpID((String) propertyMap.get("ExternalID"))
-                .CreationDate(Date.from(creationOn.toZonedDateTime().toInstant()))
+                .Name(object.getString("Name"))
+                .AdditionalName(object.getString("AdditionalName"))
+                .AdditionalName2(object.getString("AdditionalName2"))
+                .AdditionalName3(object.getString("AdditionalName3"))
+                .Phone(object.getString("Phone"))
+                .Email(object.getString("Email"))
+                .Fax(object.getString("Fax"))
+                .Mobile(object.getString("Mobile"))
+                .WebSite(object.getString("WebSite"))
+                .City(object.getString("City"))
+                .CountryCode(object.getString("CountryCode"))
+                .StateCode(object.getString("StateCode"))
+                .District(object.getString("District"))
+                .Street(object.getString("Street"))
+                .StreetPostalCode(object.getString("StreetPostalCode"))
+                .ErpID(object.getString("ExternalID"))
+                .CreationDate(creationOn)
                 .build();
     }
 }
