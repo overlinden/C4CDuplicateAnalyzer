@@ -9,6 +9,7 @@ c4cduplicateanalyzer.password = YOUR_PASSWORD
 c4cduplicateanalyzer.downloadchunksize = 50000
 c4cduplicateanalyzer.processorchunkSize = 50000000
 c4cduplicateanalyzer.exportchunksize = 10000
+c4cduplicateanalyzer.maxconnections = 10
 
 c4cduplicateanalyzer.jobs[0].countrycode = AT
 c4cduplicateanalyzer.jobs[0].roles = Z01
