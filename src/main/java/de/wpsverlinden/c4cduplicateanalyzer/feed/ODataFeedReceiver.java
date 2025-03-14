@@ -26,7 +26,6 @@ import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.olingo.odata2.api.commons.HttpHeaders;
 
-
 @Component
 public class ODataFeedReceiver implements Tasklet {
 
