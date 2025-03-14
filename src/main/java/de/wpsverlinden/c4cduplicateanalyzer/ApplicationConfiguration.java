@@ -19,6 +19,7 @@ public class ApplicationConfiguration {
     private int downloadChunkSize;
     private int processorChunkSize;
     private int exportChunkSize;
+    private int maxConnections;
     
     @Data
     public static class JobConfig {

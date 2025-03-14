@@ -20,6 +20,11 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
+import java.io.ByteArrayInputStream;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.olingo.odata2.api.commons.HttpHeaders;
 
 
 @Component
@@ -28,13 +33,13 @@ public class ODataFeedReceiver implements Tasklet {
     public static final String SEPARATOR = "/";
 
     @Autowired
-    private HttpConnectionHelper httpConnectionHelper;
-
-    @Autowired
     private Logger LOG;
 
     @Autowired
     private ApplicationConfiguration config;
+    
+    @Autowired
+    private CloseableHttpClient client;
 
     private Edm edm;
 
@@ -42,17 +47,24 @@ public class ODataFeedReceiver implements Tasklet {
     private void initialize() throws IOException, EntityProviderException {
         final String metadata_endpoint = config.getEndpoint() + "/$metadata";
         LOG.debug("Requesting service metadata from '{}'", metadata_endpoint);
-        InputStream content = httpConnectionHelper.getConnectionInputStream(metadata_endpoint, HttpConnectionHelper.APPLICATION_XML, config.getUser(), config.getPassword());
+        InputStream content = getContentInputStream(metadata_endpoint, "application/xml");
         this.edm = EntityProvider.readMetadata(content, true);
         LOG.debug("Received service metadata '{}'", edm);
     }
 
+    public InputStream getContentInputStream(String relativeUri, String contentType) throws IOException {
+        HttpGet httpGet = new HttpGet(relativeUri);
+        httpGet.addHeader(HttpHeaders.ACCEPT, contentType);
+        String response = client.execute(httpGet, new BasicHttpClientResponseHandler());
+        return new ByteArrayInputStream(response.getBytes());
+    }
+    
     public ODataFeed readFeed(String entitySetName, Optional<String> urlParameter) throws IOException, ODataException {
         EdmEntityContainer entityContainer = edm.getDefaultEntityContainer();
         String targetUri = buildUri(config.getEndpoint(), entitySetName, urlParameter);
         LOG.debug("Generated request url '{}'", targetUri);
-        InputStream content = httpConnectionHelper.getContentInputStream(targetUri, HttpConnectionHelper.APPLICATION_JSON, config.getUser(), config.getPassword());
-        return EntityProvider.readFeed(HttpConnectionHelper.APPLICATION_JSON,
+        InputStream content = getContentInputStream(targetUri, "application/json");
+        return EntityProvider.readFeed("application/json",
                 entityContainer.getEntitySet(entitySetName),
                 content,
                 EntityProviderReadProperties.init().build());
@@ -62,8 +74,8 @@ public class ODataFeedReceiver implements Tasklet {
         EdmEntityContainer entityContainer = edm.getDefaultEntityContainer();
         String targetUri = buildUri(config.getEndpoint(), entitySetName, urlParameter);
         LOG.debug("Generated request url '{}'", targetUri);
-        InputStream content = httpConnectionHelper.getContentInputStream(targetUri, HttpConnectionHelper.APPLICATION_JSON, config.getUser(), config.getPassword());
-        return EntityProvider.readEntry(HttpConnectionHelper.APPLICATION_JSON,
+        InputStream content = getContentInputStream(targetUri, "application/json");
+        return EntityProvider.readEntry("application/json",
                 entityContainer.getEntitySet(entitySetName),
                 content,
                 EntityProviderReadProperties.init().build());
